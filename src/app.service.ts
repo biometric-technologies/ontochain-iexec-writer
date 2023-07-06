@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
-import { utils, IExec } from 'iexec';
+// import { IExec, utils } from 'iexec';
+// import { utils, IExec } from 'iexec';
 @Injectable()
 export class AppService {
   async getHello(): Promise<string> {
+    const iexec = await import('iexec');
     const wallet = ethers.Wallet.createRandom();
     const { privateKey } = wallet;
-    const signer = utils.getSignerFromPrivateKey(
+    const signer = iexec.utils.getSignerFromPrivateKey(
       'https://bellecour.iex.ec',
       privateKey,
     );
 
-    const inst = new IExec({
+    const inst = new iexec.IExec({
       ethProvider: signer,
     });
 
@@ -33,15 +35,18 @@ export class AppService {
     );
 
     const appOrder = appOrders && appOrders[0] && appOrders[0].order;
-    if (!appOrder) throw Error(`no apporder found for app ${appAddress}`);
+    if (!appOrder) {
+      return `no apporder found for app ${appAddress}`;
+    }
     const { orders: workerpoolOrders } =
       await inst.orderbook.fetchWorkerpoolOrderbook({
         category: 0,
       });
     const workerpoolOrder =
       workerpoolOrders && workerpoolOrders[0] && workerpoolOrders[0].order;
-    if (!workerpoolOrder)
-      throw Error(`no workerpoolorder found for category ${0}`);
+    if (!workerpoolOrder) {
+      return `no workerpoolorder found for category ${0}`;
+    }
 
     const userAddress = await inst.wallet.getAddress();
 

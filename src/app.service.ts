@@ -1,51 +1,69 @@
-import { Injectable } from '@nestjs/common';
-import { ethers } from 'ethers';
-// import { IExec, utils } from 'iexec';
-// import { utils, IExec } from 'iexec';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { IAppConfig } from './common/configs/app.config';
+import { ConfigNames } from './common/types/enums/configNames.enum';
 @Injectable()
 export class AppService {
-  async getHello(): Promise<string> {
+  constructor(private readonly _configService: ConfigService) {}
+
+  async getHello() {
     const iexec = await import('iexec');
-    const wallet = ethers.Wallet.createRandom();
-    const { privateKey } = wallet;
-    const signer = iexec.utils.getSignerFromPrivateKey(
-      'https://bellecour.iex.ec',
-      privateKey,
+    const appConfig = this._configService.getOrThrow<IAppConfig>(
+      ConfigNames.APP,
     );
+
+    const {
+      walletPrivateKey: privateKey,
+      rpc_url,
+      iexec_app_address: appAddress,
+    } = appConfig;
+
+    const category = 0;
+
+    const signer = iexec.utils.getSignerFromPrivateKey(rpc_url, privateKey);
 
     const inst = new iexec.IExec({
       ethProvider: signer,
     });
 
-    const appAddress = '0x307C30bD6364f76eb27B218F1f2cdbd36Cf3A16B';
+    //
     const app = await inst.app.showApp(appAddress);
 
-    const signedOrder = await inst.order.signApporder(
-      await inst.order.createApporder({
+    let { orders } = await inst.orderbook.fetchAppOrderbook(appAddress);
+
+    if (!orders || !orders.length) {
+      const order = await inst.order.createApporder({
         app: appAddress,
         appprice: 0,
         volume: 1,
-      }),
-    );
-    const orderHash = await inst.order.publishApporder(signedOrder);
-    console.log({ orderHash });
+      });
+      const signedOrder = await inst.order.signApporder(order);
+      await inst.order.publishApporder(signedOrder);
 
-    const { orders: appOrders } = await inst.orderbook.fetchAppOrderbook(
-      appAddress,
-    );
+      const newRes = await inst.orderbook.fetchAppOrderbook(appAddress);
 
-    const appOrder = appOrders && appOrders[0] && appOrders[0].order;
-    if (!appOrder) {
-      return `no apporder found for app ${appAddress}`;
+      if (!newRes || !newRes.orders?.length) {
+        throw new BadRequestException(
+          `No apporder found for app ${appAddress}`,
+        );
+      }
+
+      orders = newRes.orders;
     }
+    const appOrder = orders && orders[0] && orders[0].order;
+
     const { orders: workerpoolOrders } =
       await inst.orderbook.fetchWorkerpoolOrderbook({
-        category: 0,
+        category,
       });
+
     const workerpoolOrder =
       workerpoolOrders && workerpoolOrders[0] && workerpoolOrders[0].order;
+
     if (!workerpoolOrder) {
-      return `no workerpoolorder found for category ${0}`;
+      throw new BadRequestException(
+        `no workerpoolorder found for category ${category}`,
+      );
     }
 
     const userAddress = await inst.wallet.getAddress();
@@ -56,8 +74,27 @@ export class AppService {
       workerpoolmaxprice: workerpoolOrder.workerpoolprice,
       requester: userAddress,
       volume: 1,
-      params: { iexec_args: 'one, two' },
-      category: 0,
+      params: { iexec_args: 'hello world' },
+      category,
+    });
+
+    const isStorageInitialized = await inst.storage.checkStorageTokenExists(
+      userAddress,
+    );
+
+    if (!isStorageInitialized) {
+      const storageToken = await inst.storage.defaultStorageLogin();
+      const pushResult = await inst.storage.pushStorageToken(storageToken, {
+        forceUpdate: true,
+      });
+      console.log({ storageToken, pushResult });
+    }
+
+    console.log({
+      appOrder,
+      workerpoolOrder,
+      requestOrderToSign,
+      isStorageInitialized,
     });
 
     const requestOrder = await inst.order.signRequestorder(requestOrderToSign);
@@ -69,7 +106,6 @@ export class AppService {
     });
     console.log({ app, res });
 
-    // result.stdout?.on('data', console.log);
-    return 'Hello World!';
+    return { status: 'Success', message: 'Hello World!' };
   }
 }

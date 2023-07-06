@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { IAppConfig } from './common/configs/app.config';
 import { ConfigNames } from './common/types/enums/configNames.enum';
 import { customExpectaionFactory } from './common/utils/customExpectationFactory';
+import requestIp from 'request-ip';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,8 @@ async function bootstrap() {
       exceptionFactory: customExpectaionFactory,
     }),
   );
+
+  app.use(requestIp.mw());
 
   app.enableCors({
     credentials: true,

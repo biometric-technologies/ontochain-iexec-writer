@@ -6,7 +6,7 @@ import { ConfigNames } from './common/types/enums/configNames.enum';
 export class AppService {
   constructor(private readonly _configService: ConfigService) {}
 
-  async getHello() {
+  async pushHashes(hashes: string[]) {
     const iexec = await import('iexec');
     const appConfig = this._configService.getOrThrow<IAppConfig>(
       ConfigNames.APP,
@@ -16,6 +16,7 @@ export class AppService {
       walletPrivateKey: privateKey,
       rpc_url,
       iexec_app_address: appAddress,
+      hashes_saver_contract_address: contractAddress,
     } = appConfig;
 
     const category = 0;
@@ -25,9 +26,20 @@ export class AppService {
     const inst = new iexec.IExec({
       ethProvider: signer,
     });
+    const userAddress = await inst.wallet.getAddress();
 
+    //use locally for deploy app
+    //DEPLOY APP
+    // const { address } = await inst.app.deployApp({
+    //   owner: userAddress,
+    //   name: 'hashes-saver',
+    //   type: 'DOCKER',
+    //   multiaddr: 'docker.io/kykycb/hashes-saver:1.0.0',
+    //   checksum:
+    //     '0x0993ed1d9df76bee652100681622ed135e6ec6b402d3ea968f074b32f7922b9e',
+    // });
+    // return { message: `app deployed to ${address}` };
     //
-    const app = await inst.app.showApp(appAddress);
 
     let { orders } = await inst.orderbook.fetchAppOrderbook(appAddress);
 
@@ -66,46 +78,52 @@ export class AppService {
       );
     }
 
-    const userAddress = await inst.wallet.getAddress();
-
     const requestOrderToSign = await inst.order.createRequestorder({
       app: appAddress,
       appmaxprice: appOrder.appprice,
       workerpoolmaxprice: workerpoolOrder.workerpoolprice,
       requester: userAddress,
       volume: 1,
-      params: { iexec_args: 'hello world' },
+      params: {
+        iexec_args: `${privateKey} ${rpc_url} ${contractAddress} ${hashes.join(
+          ' ',
+        )}`,
+      },
       category,
     });
 
-    const isStorageInitialized = await inst.storage.checkStorageTokenExists(
-      userAddress,
-    );
+    // const isStorageInitialized = await inst.storage.checkStorageTokenExists(
+    //   userAddress,
+    // );
 
-    if (!isStorageInitialized) {
-      const storageToken = await inst.storage.defaultStorageLogin();
-      const pushResult = await inst.storage.pushStorageToken(storageToken, {
-        forceUpdate: true,
-      });
-      console.log({ storageToken, pushResult });
-    }
-
-    console.log({
-      appOrder,
-      workerpoolOrder,
-      requestOrderToSign,
-      isStorageInitialized,
+    //needs to update every time
+    //token can expire
+    const storageToken = await inst.storage.defaultStorageLogin();
+    await inst.storage.pushStorageToken(storageToken, {
+      forceUpdate: true,
+      // teeFramework: 'gramine',
     });
+
+    //need for tee framework
+    // const isExistsSecret = await inst.secrets.checkRequesterSecretExists(
+    //   userAddress,
+    //   'secret_one',
+    //   { teeFramework: 'gramine' },
+    // );
+    // if (isExistsSecret) {
+    //   await inst.secrets.pushRequesterSecret('secret_one', `i'm secret word`, {
+    //     teeFramework: 'gramine',
+    //   });
+    // }
 
     const requestOrder = await inst.order.signRequestorder(requestOrderToSign);
 
-    const res = await inst.order.matchOrders({
+    await inst.order.matchOrders({
       apporder: appOrder,
       requestorder: requestOrder,
       workerpoolorder: workerpoolOrder,
     });
-    console.log({ app, res });
 
-    return { status: 'Success', message: 'Hello World!' };
+    return { status: 'Success', message: 'Hashes pushed successfully' };
   }
 }

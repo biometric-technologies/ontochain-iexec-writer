@@ -1,20 +1,13 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { PushHashesDto } from './dtos/push_hashes.dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  async getHello() {
-    return this.appService.getHello();
-  }
-
-  @Get('/hello')
-  async getHelloBlockchain(
-    @Query() body: { message: string },
-  ): Promise<string> {
-    console.log({ status: 'success', message: body.message });
-    return 'OK';
+  @Post('hash')
+  async pushHashes(@Body() body: PushHashesDto) {
+    return this.appService.pushHashes(body.hashes);
   }
 }

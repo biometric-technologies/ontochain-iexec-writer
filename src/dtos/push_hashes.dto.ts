@@ -1,11 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayUnique, IsArray, IsHash, IsString } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  ArrayUnique,
+  IsArray,
+  IsHash,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
-export class PushHashesDto {
-  @ApiProperty({ isArray: true, type: String })
+export class InfoDto {
+  @ApiProperty()
+  @IsString()
+  @IsHash('sha512')
+  @IsNotEmpty()
+  hash: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  loanId: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsPositive()
+  timestamp: number;
+}
+
+export class PushInfoDto {
+  @ApiProperty({ isArray: true, type: InfoDto })
+  @ValidateNested({ each: true })
   @IsArray()
-  @IsString({ each: true })
-  @IsHash('sha512', { each: true })
-  @ArrayUnique()
-  hashes: string[];
+  @ArrayMaxSize(10)
+  @ArrayMinSize(1)
+  @ArrayUnique<InfoDto>((info) => info.hash)
+  infos: InfoDto[];
 }

@@ -6,9 +6,10 @@ import {
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppService } from './services/app.service';
 import appConfig from './common/configs/app.config';
 import { LoggerMiddleware } from './common/log/log.middleware';
+import { StorageService } from './services/storage.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { LoggerMiddleware } from './common/log/log.middleware';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, StorageService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

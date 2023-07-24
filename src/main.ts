@@ -7,11 +7,12 @@ import { ConfigNames } from './common/types/enums/configNames.enum';
 import { customExpectaionFactory } from './common/utils/customExpectationFactory';
 import requestIp from 'request-ip';
 import { setupSwagger } from './common/utils/setupSwagger';
+import { globalPrefix } from './common/constants/index';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(globalPrefix);
 
   app.useGlobalPipes(
     new ValidationPipe({

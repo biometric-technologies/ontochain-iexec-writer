@@ -9,6 +9,7 @@ export interface IAppConfig {
   origin_url: string;
   iexec_app_address: string;
   hashes_saver_contract_address: string;
+  storage_path: string;
 }
 
 export default registerAs(ConfigNames.APP, () => {
@@ -19,12 +20,15 @@ export default registerAs(ConfigNames.APP, () => {
   const origin_url = process.env.ORIGIN_URL;
   const iexec_app_address = process.env.IEXEC_APP_ADDRESS;
   const hashes_saver_contract_address = process.env.HASH_SAVER_CONTRACT_ADDRESS;
+  const storage_path = process.env.STORAGE_PATH ? process.env.STORAGE_PATH : 'storage';
+  const auth_key = process.env.AUTH_KEY;
   if (
     !app_owner_private_key ||
     !contract_owner_private_key ||
     !rpc_url ||
     !origin_url ||
     !iexec_app_address ||
+    !auth_key ||
     !hashes_saver_contract_address
   ) {
     throw new Error('Failed to get ENV variables');
@@ -38,6 +42,7 @@ export default registerAs(ConfigNames.APP, () => {
     origin_url,
     iexec_app_address,
     hashes_saver_contract_address,
+    storage_path,
   };
   return config;
 });

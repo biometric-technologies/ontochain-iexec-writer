@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="375" viewBox="0 0 960 375" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1c77c3"/>
+    </marker>
+  </defs>
+  <rect x="0.5" y="0.5" width="959" height="374" rx="16" fill="#ffffff" stroke="#d0d7de"/>
+
+  <text x="480" y="40" text-anchor="middle" fill="#0a328f" font-size="18" font-weight="600">INGRESS: how a loan record ends up anchored on chain</text>
+
+  <!-- Box 1: wallet -->
+  <rect x="30" y="90" width="160" height="100" rx="10" fill="#eaf4ff" stroke="#1c77c3"/>
+  <text x="110" y="130" text-anchor="middle" fill="#0a328f" font-size="16">Wallet app</text>
+  <text x="110" y="152" text-anchor="middle" fill="#0a328f" font-size="16">(Flutter)</text>
+  <text x="110" y="215" text-anchor="middle" fill="#57606a" font-size="13">keys on the phone,</text>
+  <text x="110" y="233" text-anchor="middle" fill="#57606a" font-size="13">face credential, loan</text>
+  <text x="110" y="251" text-anchor="middle" fill="#57606a" font-size="13">applications</text>
+
+  <line x1="192" y1="140" x2="218" y2="140" stroke="#1c77c3" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Box 2: bureaus -->
+  <rect x="220" y="90" width="160" height="100" rx="10" fill="#eaf4ff" stroke="#1c77c3"/>
+  <text x="300" y="130" text-anchor="middle" fill="#0a328f" font-size="16">Biometric and</text>
+  <text x="300" y="152" text-anchor="middle" fill="#0a328f" font-size="16">credit bureau APIs</text>
+  <text x="300" y="215" text-anchor="middle" fill="#57606a" font-size="13">issue credentials,</text>
+  <text x="300" y="233" text-anchor="middle" fill="#57606a" font-size="13">approve and track loans</text>
+
+  <line x1="382" y1="140" x2="408" y2="140" stroke="#1c77c3" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Box 3: writer -->
+  <rect x="410" y="90" width="160" height="100" rx="10" fill="#eaf4ff" stroke="#1c77c3"/>
+  <text x="490" y="130" text-anchor="middle" fill="#0a328f" font-size="16">Writer service</text>
+  <text x="490" y="152" text-anchor="middle" fill="#0a328f" font-size="16">(NestJS)</text>
+  <text x="490" y="215" text-anchor="middle" fill="#57606a" font-size="13">POST /api/hash: signs a</text>
+  <text x="490" y="233" text-anchor="middle" fill="#57606a" font-size="13">saveHashes transaction,</text>
+  <text x="490" y="251" text-anchor="middle" fill="#57606a" font-size="13">orders an iExec run</text>
+
+  <line x1="572" y1="140" x2="598" y2="140" stroke="#1c77c3" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Box 4: iExec task -->
+  <rect x="600" y="90" width="160" height="100" rx="10" fill="#eaf4ff" stroke="#1c77c3"/>
+  <text x="680" y="130" text-anchor="middle" fill="#0a328f" font-size="16">iExec task</text>
+  <text x="680" y="152" text-anchor="middle" fill="#0a328f" font-size="16">(Docker, Node.js)</text>
+  <text x="680" y="215" text-anchor="middle" fill="#57606a" font-size="13">a worker fetches the</text>
+  <text x="680" y="233" text-anchor="middle" fill="#57606a" font-size="13">signed transaction and</text>
+  <text x="680" y="251" text-anchor="middle" fill="#57606a" font-size="13">broadcasts it</text>
+
+  <line x1="762" y1="140" x2="788" y2="140" stroke="#1c77c3" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Box 5: contract -->
+  <rect x="790" y="90" width="150" height="100" rx="10" fill="#eaf4ff" stroke="#5cc8ff" stroke-width="2"/>
+  <text x="865" y="130" text-anchor="middle" fill="#0a328f" font-size="16">HashStorage</text>
+  <text x="865" y="152" text-anchor="middle" fill="#0a328f" font-size="16">smart contract</text>
+  <text x="865" y="215" text-anchor="middle" fill="#57606a" font-size="13">stores hash, loan id</text>
+  <text x="865" y="233" text-anchor="middle" fill="#57606a" font-size="13">and timestamp on the</text>
+  <text x="865" y="251" text-anchor="middle" fill="#57606a" font-size="13">iExec Bellecour chain</text>
+
+  <text x="480" y="296" text-anchor="middle" fill="#57606a" font-size="13">Anchoring a hash: only a SHA-512 fingerprint of the record goes on chain, so anyone can later prove</text>
+  <text x="480" y="314" text-anchor="middle" fill="#57606a" font-size="13">the record existed and was not changed, without seeing its content.</text>
+  <text x="480" y="336" text-anchor="middle" fill="#57606a" font-size="13">iExec: a decentralized computing network where you pay a worker pool to run a Docker image for you,</text>
+  <text x="480" y="354" text-anchor="middle" fill="#57606a" font-size="13">with the result attached to the on-chain task.</text>
+</svg>

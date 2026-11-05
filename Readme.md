@@ -70,4 +70,4 @@ License: not yet specified.
 
 ## Contact
 
-info@iriscan.net, https://www.iriscan.com
+info@iriscan.com, https://www.iriscan.com
